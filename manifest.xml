@@ -9,7 +9,8 @@
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/seminar_high_level_homework</url>
 
-  <depend package="roslisp"/>
+  <depend package="roslisp" />
+  <depend package="turtlesim" />
 
 </package>
 
