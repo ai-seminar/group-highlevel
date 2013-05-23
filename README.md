@@ -18,7 +18,7 @@ $ rosrun roslisp_repl repl
 
 * Press `,`
 * Enter `ros-load-system` and press return
-* Enter `seminar_high_level_homework` and press return
+* Enter `seminar_high_level_homework` and press return (twice)
 * Press `,`
 * Enter `!p` and press return
 * Enter `SEMINAR-HIGH-LEVEL-HOMEWORK` and press return
