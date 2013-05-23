@@ -16,12 +16,12 @@ After checking out the source code and installing the mentioned packages, restar
 $ rosrun roslisp_repl repl
 ```
 
-* Press `,'
-* Enter "ros-load-system" and press return
-* Enter "seminar_high_level_homework" and press return
-* Press `,'
-* Enter "!p" and press return
-* Enter "SEMINAR-HIGH-LEVEL-HOMEWORK" and press return
+* Press `,`
+* Enter `ros-load-system` and press return
+* Enter `seminar_high_level_homework` and press return
+* Press `,`
+* Enter `!p` and press return
+* Enter `SEMINAR-HIGH-LEVEL-HOMEWORK` and press return
 
 You are now in the package for the homework, with all components loaded.
 On a new terminal, enter
