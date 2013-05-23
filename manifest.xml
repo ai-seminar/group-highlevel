@@ -1,0 +1,16 @@
+<package>
+  <description brief="seminar_high_level_homework">
+
+     seminar_high_level_homework
+
+  </description>
+  <author>Jan Winkler</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/seminar_high_level_homework</url>
+
+  <depend package="roslisp"/>
+
+</package>
+
+
