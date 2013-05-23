@@ -45,3 +45,5 @@ On the repl, enter
 ```
 
 This connects the repl to the ROS master and allows you to communicate with the turtle.
+
+Happy hacking.
