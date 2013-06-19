@@ -33,8 +33,8 @@
 ;; city. The function `read-name' shows how to read the respective
 ;; name from a given city dataset.
 
-(defun read-coordinates (city)
-  (cdr (assoc 'coordinates city))
+;; (defun read-coordinates (city)
+;;   (cdr (assoc 'coordinates city))
   
 
 (defvar *last-turtle-pose* nil)
