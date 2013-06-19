@@ -33,15 +33,14 @@
 ;; city. The function `read-name' shows how to read the respective
 ;; name from a given city dataset.
 
-;; (defun read-coordinates (city)
-;;   (cdr (assoc 'coordinates city))
+(defun read-coordinates (city)
+  (cdr (assoc 'coordinates city))
   
 
 (defvar *last-turtle-pose* nil)
 (defvar *subscriber-started* nil)
 
-(defun read-coordinates (city)
-  (declare (ignore city)))
+
 
 (defun send-turtle-velocity (linear angular)
   (roslisp:publish (roslisp:advertise "/turtle1/command_velocity"
