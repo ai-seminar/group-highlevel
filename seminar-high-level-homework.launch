@@ -1,0 +1,11 @@
+<launch>
+
+  <group ns="turtlesim1">
+    <node pkg="turtlesim" name="sim" type="turtlesim_node"/>
+  </group>
+
+  <group ns="seminar-high-level">
+    <node pkg="group_highlevel" name="test123" type="seminar_highlevel"/>
+  </group>
+
+</launch>
