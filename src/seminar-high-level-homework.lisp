@@ -28,9 +28,14 @@
 (defun read-name (city)
   (cdr (assoc 'name city)))
 
+
 ;; TASK: Write a function for reading the coordinates of a given
 ;; city. The function `read-name' shows how to read the respective
 ;; name from a given city dataset.
+
+(defun read-coordinates (city)
+  (cdr (assoc 'coordinates city))
+  
 
 (defvar *last-turtle-pose* nil)
 (defvar *subscriber-started* nil)
