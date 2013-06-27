@@ -3,6 +3,22 @@
   (:export :main))
 (in-package :seminar-high-level-homework)
 
+
+
+(defvar *node-started* nil)
+
+(defun main ()
+  (unless *node-started*
+    (roslisp:start-ros-node "seminar_highlevel")
+    (setf *node-started* t))
+  (print "Hello")
+  (loop when (= (send-turtle-velocity 10 1) 0)
+	do (sleep 0.1)
+	while (= (send-turtle-velocity 10 1) 0))
+  (print "Bye Bye"))
+
+
+
 ;; NOTE: The *cities* variable holds all cities that are
 ;; available. They are given as a list which consists of lists of
 ;; key-value pairs. In our case, the keys `name' and `coordinates' are
@@ -75,39 +91,37 @@
 
 
 (defun go-turtle-go (point)
-    (SETQ pos (get-turtle-pose))
-    (SETQ xdiff (- (nth 0 point) (cdr (assoc 'x pos))))
-    (SETQ ydiff (- (nth 1 point) (cdr (assoc 'y pos))))
+	(SETQ pos (get-turtle-pose))
+	(SETQ xdiff (- (nth 0 point) (cdr (assoc 'x pos))))
+	(SETQ ydiff (- (nth 1 point) (cdr (assoc 'y pos))))
 	
-	(SETQ winkel (atan ydiff xdiff))
+	(SETQ winkel (atan (abs ydiff) (abs xdiff)))
 	
-	(if (> xdiff 0) 
-		(if (< ydiff 0) 
-			(SetQ winkel winkel) 
-			(SETQ winkel (- 0 winkel))
+	
+	(if (> xdiff 0)                            ;;Ziel rechts der Schildkröte
+		(if (> ydiff 0) 
+			(SETQ winkel winkel)             ;;Ziel über Schildkröte
+			(SETQ winkel (- (* 2 PI) winkel))       ;;Ziel unter Schildkröte
+			;;(SETQ winkel (- 0 winkel))
 		)
-			
-		(if (< ydiff 0) 
-			(SETQ winkel (- PI winkel)) 
-			(SETQ winkel (+ PI winkel))
+			                           ;;Ziel links der Schildkröte
+		(if (> ydiff 0) 
+			(SETQ winkel (- PI winkel))      ;;Ziel über Schildkröte
+			(SETQ winkel (+ PI winkel))      ;;Ziel unter Schildkröte
+			;;(SETQ winkel (- 0 (- PI winkel)))
 		)
 	)
 	
-	(print winkel)
-	
-      	(send-turtle-velocity 0 (- winkel (cdr (assoc 'theta pos))))
-	(sleep 2)
-	(send-turtle-velocity 1 0)
+	(SETQ winkel (- winkel (cdr (assoc 'theta pos))))
+
+    (send-turtle-velocity 0 winkel)
+	(sleep 1)
+	(send-turtle-velocity *speed* 0)
 )
 
-(defvar *node-started* nil)
 
-(defun main ()
-  (unless *node-started*
-    (roslisp:start-ros-node "seminar_highlevel")
-    (setf *node-started* t))
-  (print "Hello")
-  (loop when (= (send-turtle-velocity 10 1) 0)
-	do (sleep 0.1)
-	while (= (send-turtle-velocity 10 1) 0))
-  (print "Bye Bye"))
+(defvar *speed* 0.5)
+
+(defun set-speed (number)
+	(SETF *speed* number)
+)
