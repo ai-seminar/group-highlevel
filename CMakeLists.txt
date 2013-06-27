@@ -29,4 +29,4 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 #rosbuild_add_executable(example examples/example.cpp)
 #target_link_libraries(example ${PROJECT_NAME})
 
-rospack_add_lisp_executable(bin/seminar-high-level-homework roslisp-tutorials roslisp-tutorials:seminar-high-level-homework)
+rosbuild_add_lisp_executable(bin/seminar-high-level-homework seminar-high-level-homework seminar-high-level-homework:main)
