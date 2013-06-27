@@ -1,3 +1,6 @@
+(defpackage :seminar-high-level-homework
+  (:use :cl :roslisp)
+  (:export :main))
 (in-package :seminar-high-level-homework)
 
 ;; NOTE: The *cities* variable holds all cities that are
@@ -96,3 +99,15 @@
 	(sleep 2)
 	(send-turtle-velocity 1 0)
 )
+
+(defvar *node-started* nil)
+
+(defun main ()
+  (unless *node-started*
+    (roslisp:start-ros-node "seminar_highlevel")
+    (setf *node-started* t))
+  (print "Hello")
+  (loop when (= (send-turtle-velocity 10 1) 0)
+	do (sleep 0.1)
+	while (= (send-turtle-velocity 10 1) 0))
+  (print "Bye Bye"))
