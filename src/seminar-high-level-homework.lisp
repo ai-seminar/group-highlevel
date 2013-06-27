@@ -34,8 +34,7 @@
 ;; name from a given city dataset.
 
 (defun read-coordinates (city)
-  (cdr (assoc 'coordinates city))
-  
+  (declare (ignore city)))  
 
 (defvar *last-turtle-pose* nil)
 (defvar *subscriber-started* nil)

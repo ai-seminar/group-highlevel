@@ -1,0 +1,8 @@
+<launch>
+  
+	<!-- Roslisp-->
+	<node pkg="roslisp_repl" type="repl" name="repl"/>
+	
+	<!-- Turtlesim Node-->
+	<node pkg="turtlesim" type="turtlesim_node" name="my_turtle"/>
+</launch>
