@@ -34,8 +34,9 @@
 ;; name from a given city dataset.
 
 (defun read-coordinates (city)
-  (declare (ignore city)))  
-
+  (cdr (assoc 'coordinates city)))
+  
+  
 (defvar *last-turtle-pose* nil)
 (defvar *subscriber-started* nil)
 
@@ -68,3 +69,30 @@
           do (sleep 0.1)
         while (not *last-turtle-pose*))
   *last-turtle-pose*)
+
+
+(defun go-turtle-go (point)
+    (SETQ pos (get-turtle-pose))
+    (SETQ xdiff (- (nth 0 point) (cdr (assoc 'x pos))))
+    (SETQ ydiff (- (nth 1 point) (cdr (assoc 'y pos))))
+	
+	(SETQ winkel (atan ydiff xdiff))
+	
+	(if (> xdiff 0) 
+		(if (< ydiff 0) 
+			(SetQ winkel winkel) 
+			(SETQ winkel (- 0 winkel))
+		)
+			
+		(if (< ydiff 0) 
+			(SETQ winkel (- PI winkel)) 
+			(SETQ winkel (+ PI winkel))
+		)
+	)
+	
+	(print winkel)
+	
+      	(send-turtle-velocity 0 (- winkel (cdr (assoc 'theta pos))))
+	(sleep 2)
+	(send-turtle-velocity 1 0)
+)
