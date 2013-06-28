@@ -90,6 +90,8 @@
   *last-turtle-pose*)
 
 
+;;calculates route for going to a given point
+;;and moves there with a speed of *speed* units per second
 (defun go-turtle-go (point)
 	(SETQ pos (get-turtle-pose))
 	(SETQ xdiff (- (nth 0 point) (cdr (assoc 'x pos))))
@@ -124,4 +126,28 @@
 
 (defun set-speed (number)
 	(SETF *speed* number)
+)
+
+
+;;checks whether the given city was reached
+;;returns T if so,
+;;returns NIL if not so.
+(defun city-reached (city)
+	(SETQ limit 0.2)
+	(SETQ coords (read-coordinates city))
+	(SETQ turtle (get-turtle-pose))
+	
+	(if	(and
+		
+			(<= (cdr (assoc 'x turtle)) (+ (nth 0 coords) limit) )
+			(>= (cdr (assoc 'x turtle)) (- (nth 0 coords) limit) )
+		
+			(<= (cdr (assoc 'y turtle)) (+ (nth 1 coords) limit) )
+			(>= (cdr (assoc 'y turtle)) (- (nth 1 coords) limit) )
+		)
+		;;THEN :: CITY REACHED => TRUE
+		T
+		;;ELSE :: CITY NOT REACHED => FALSE
+		NIL
+	)
 )
