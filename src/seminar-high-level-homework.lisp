@@ -151,3 +151,20 @@
 		NIL
 	)
 )
+
+
+
+;;visit all cities.
+(defun visit-cities ()
+
+	(loop for x from 0 to (- (length *cities*) 1) do
+		(SETQ currentCity (nth x *cities*))
+			
+		(loop while (not (city-reached currentCity)) do
+			(print (read-name currentCity))
+			(go-turtle-go (read-coordinates currentCity))
+			(sleep 2)
+		)
+		(roslisp:ros-info (seminar high-level) "Reached city ~a" (read-name currentCity))
+    )
+)
