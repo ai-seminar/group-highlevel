@@ -8,14 +8,11 @@
 (defvar *node-started* nil)
 
 (defun main ()
-  (unless *node-started*
-    (roslisp:start-ros-node "seminar_highlevel")
-    (setf *node-started* t))
-  (print "Hello")
-  (loop when (= (send-turtle-velocity 10 1) 0)
-	do (sleep 0.1)
-	while (= (send-turtle-velocity 10 1) 0))
-  (print "Bye Bye"))
+	(unless *node-started*
+		(roslisp:start-ros-node "seminar_highlevel")
+		(setf *node-started* t)
+	)
+)
 
 
 
@@ -23,26 +20,26 @@
 ;; available. They are given as a list which consists of lists of
 ;; key-value pairs. In our case, the keys `name' and `coordinates' are
 ;; defined.
-(defvar *cities* (list (list (cons 'name "City 1")
+(defvar *cities* (list (list (cons 'name "Bremen")
                              (cons 'coordinates '(1.0 3.0)))
-                       (list (cons 'name "City 2")
+                       (list (cons 'name "Oldenburg")
                              (cons 'coordinates '(3.0 1.0)))
-                       (list (cons 'name "City 3")
-                             (cons 'coordinates '(-1.0 0.0)))
-                       (list (cons 'name "City 4")
+                       (list (cons 'name "Frankfurt")
+                             (cons 'coordinates '(8.0 0.0)))
+                       (list (cons 'name "Dresden")
                              (cons 'coordinates '(2.0 2.0)))
-                       (list (cons 'name "City 5")
+                       (list (cons 'name "New York")
                              (cons 'coordinates '(5.0 0.0)))
-                       (list (cons 'name "City 6")
-                             (cons 'coordinates '(-4.0 0.0)))
-                       (list (cons 'name "City 7")
+                       (list (cons 'name "Istanbul")
+                             (cons 'coordinates '(2.0 5.0)))
+                       (list (cons 'name "Jerusalem")
                              (cons 'coordinates '(5.0 7.0)))
-                       (list (cons 'name "City 8")
-                             (cons 'coordinates '(-6.0 3.0)))
-                       (list (cons 'name "City 9")
-                             (cons 'coordinates '(-10.0 -10.0)))
-                       (list (cons 'name "City 10")
-                             (cons 'coordinates '(2.0 8.0)))))
+                       (list (cons 'name "Kambodscha")
+                             (cons 'coordinates '(6.0 3.0)))
+                       (list (cons 'name "Dubai")
+                             (cons 'coordinates '(10.0 10.0)))
+                       (list (cons 'name "Moskau")
+                             (cons 'coordinates '(4.0 8.0)))))
 
 (defun read-name (city)
   (cdr (assoc 'name city)))
@@ -122,7 +119,7 @@
 )
 
 
-(defvar *speed* 0.5)
+(defvar *speed* 0.2)
 
 (defun set-speed (number)
 	(SETF *speed* number)
@@ -155,16 +152,33 @@
 
 
 ;;visit all cities.
+;;
+;;TODO change Background to random color, when reaching city.
+;;TODO go back to initial position, when reached all cities.
+;;
 (defun visit-cities ()
-
+	(SETQ x (cdr (assoc 'x (get-turtle-pose))))
+	(SETQ y (cdr (assoc 'y (get-turtle-pose))))
+	
+	(SETQ start (list (cons 'name "Start")
+		(cons 'coordinates '(x y)))
+	)
+	
+	
 	(loop for x from 0 to (- (length *cities*) 1) do
 		(SETQ currentCity (nth x *cities*))
 			
 		(loop while (not (city-reached currentCity)) do
-			(print (read-name currentCity))
 			(go-turtle-go (read-coordinates currentCity))
 			(sleep 2)
 		)
 		(roslisp:ros-info (seminar high-level) "Reached city ~a" (read-name currentCity))
     )
+    
+    ;;alle städte erreicht.
+    (loop while (not (city-reached start)) do
+		(go-turtle-go (read-coordinates start))
+		(sleep 2)
+	)
+	(roslisp:ros-info (seminar high-level) "Returned to the Startpoint.")
 )
