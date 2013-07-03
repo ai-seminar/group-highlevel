@@ -7,13 +7,13 @@
 
 (defvar *node-started* nil)
 
-(defun main ()
-	(unless *node-started*
-		(roslisp:start-ros-node "seminar_highlevel")
-		(setf *node-started* t)
-	)
-)
+(defvar *last-turtle-pose* nil)
 
+(defvar *subscriber-started* nil)
+
+(defvar *speed* 0.2)
+
+(defvar *cross-counter* 0)
 
 
 ;; NOTE: The *cities* variable holds all cities that are
@@ -41,27 +41,45 @@
                        (list (cons 'name "Moskau")
                              (cons 'coordinates '(4.0 8.0)))))
 
+
+
+
+(defun main ()
+	(unless *node-started*
+		(roslisp:start-ros-node "seminar_highlevel")
+		(setf *node-started* t)
+	)
+)
+
+
+
+
+;;Getter and Setter
+
 (defun read-name (city)
-  (cdr (assoc 'name city)))
+	(cdr (assoc 'name city)))
 
-
-;; TASK: Write a function for reading the coordinates of a given
-;; city. The function `read-name' shows how to read the respective
-;; name from a given city dataset.
 
 (defun read-coordinates (city)
-  (cdr (assoc 'coordinates city)))
+	(cdr (assoc 'coordinates city)))
+ 
   
-  
-(defvar *last-turtle-pose* nil)
-(defvar *subscriber-started* nil)
-
-
-(defvar *speed* 0.2)
-
 (defun set-speed (number)
 	(SETF *speed* number)
 )
+
+
+(defun addCrossedWay ()
+	(SETF *cross-counter* (+ *cross-counter* 1))
+)
+
+
+
+
+
+
+
+;;					given functions
 
 
 (defun send-turtle-velocity (linear angular)
@@ -94,6 +112,10 @@
 
 
 
+
+;;						own functions
+
+
 ;;calculates route for going to a given point
 ;;and moves there with a speed of *speed* units per second
 (defun go-turtle-go (point)
@@ -106,17 +128,15 @@
 		)
 		
 		
-		(if (> xdiff 0)                            ;;Ziel rechts der Schildkröte
+		(if (> xdiff 0)								;;Ziel rechts der Schildkröte
 			(if (> ydiff 0) 
-				(SETQ winkel winkel)             	;;Ziel über Schildkröte
+				(SETQ winkel winkel)             		;;Ziel über Schildkröte
 				(SETQ winkel (- (* 2 PI) winkel))       ;;Ziel unter Schildkröte
-			;;(SETQ winkel (- 0 winkel))
 			)
-			                           				;;Ziel links der Schildkröte
+													;;Ziel links der Schildkröte
 			(if (> ydiff 0) 
-				(SETQ winkel (- PI winkel))      ;;Ziel über Schildkröte
-				(SETQ winkel (+ PI winkel))      ;;Ziel unter Schildkröte
-				;;(SETQ winkel (- 0 (- PI winkel)))
+				(SETQ winkel (- PI winkel))				;;Ziel über Schildkröte
+				(SETQ winkel (+ PI winkel))				;;Ziel unter Schildkröte
 			)
 		)
 	
@@ -129,13 +149,14 @@
 )
 
 
+
 ;;checks whether the given city was reached
 ;;returns T if so,
 ;;returns NIL if not so.
 (defun city-reached (city)
 		
 	(let 
-		(	(limit 0.2)
+		(	(limit 0.1)
 			(coords (read-coordinates city))
 			(turtle (get-turtle-pose))
 		)
@@ -160,9 +181,6 @@
 
 
 ;;visit all cities.
-;;
-;;TODO change Background to random color, when reaching city.
-;;
 (defun visit-cities ()
 	(let* 
 		(	(x (cdr (assoc 'x (get-turtle-pose))))
@@ -179,8 +197,10 @@
 			
 			(loop while (not (city-reached currentCity)) do
 				(go-turtle-go (read-coordinates currentCity))
-				(sleep 0.5)
+				(sleep 1)
+				(if (wayCrossed) (addCrossedWay))
 			)
+			(changeBGColor)
 			(roslisp:ros-info (seminar high-level) "Reached city ~a" (read-name currentCity))
 		)
 		
@@ -188,8 +208,21 @@
 		(loop while (not (city-reached start)) do
 			(go-turtle-go (read-coordinates start))
 			(sleep 1)
+			(if (wayCrossed) (addCrossedWay))
 		)
-		(roslisp:ros-info (seminar high-level) "Returned to the Startpoint.")
+		(roslisp:ros-info (seminar high-level) "Returned to the Startpoint. Mission Complete.")
 		
 	)
+)
+
+
+
+;;TODO wurde der eigene Weg gekreuzt?
+(defun wayCrossed ()
+	NIL
+)
+
+;;TODO hintergrundfarbe ändern
+(defun changeBGColor ()
+
 )
