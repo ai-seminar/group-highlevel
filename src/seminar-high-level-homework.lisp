@@ -57,6 +57,12 @@
 (defvar *subscriber-started* nil)
 
 
+(defvar *speed* 0.2)
+
+(defun set-speed (number)
+	(SETF *speed* number)
+)
+
 
 (defun send-turtle-velocity (linear angular)
   (roslisp:publish (roslisp:advertise "/turtle1/command_velocity"
@@ -87,42 +93,39 @@
   *last-turtle-pose*)
 
 
+
 ;;calculates route for going to a given point
 ;;and moves there with a speed of *speed* units per second
 (defun go-turtle-go (point)
-	(SETQ pos (get-turtle-pose))
-	(SETQ xdiff (- (nth 0 point) (cdr (assoc 'x pos))))
-	(SETQ ydiff (- (nth 1 point) (cdr (assoc 'y pos))))
 	
-	(SETQ winkel (atan (abs ydiff) (abs xdiff)))
-	
-	
-	(if (> xdiff 0)                            ;;Ziel rechts der Schildkröte
-		(if (> ydiff 0) 
-			(SETQ winkel winkel)             ;;Ziel über Schildkröte
-			(SETQ winkel (- (* 2 PI) winkel))       ;;Ziel unter Schildkröte
+	(let*
+		(	(pos (get-turtle-pose))
+			(xdiff (- (nth 0 point) (cdr (assoc 'x pos))))
+			(ydiff (- (nth 1 point) (cdr (assoc 'y pos))))
+			(winkel (atan (abs ydiff) (abs xdiff)))
+		)
+		
+		
+		(if (> xdiff 0)                            ;;Ziel rechts der Schildkröte
+			(if (> ydiff 0) 
+				(SETQ winkel winkel)             	;;Ziel über Schildkröte
+				(SETQ winkel (- (* 2 PI) winkel))       ;;Ziel unter Schildkröte
 			;;(SETQ winkel (- 0 winkel))
+			)
+			                           				;;Ziel links der Schildkröte
+			(if (> ydiff 0) 
+				(SETQ winkel (- PI winkel))      ;;Ziel über Schildkröte
+				(SETQ winkel (+ PI winkel))      ;;Ziel unter Schildkröte
+				;;(SETQ winkel (- 0 (- PI winkel)))
+			)
 		)
-			                           ;;Ziel links der Schildkröte
-		(if (> ydiff 0) 
-			(SETQ winkel (- PI winkel))      ;;Ziel über Schildkröte
-			(SETQ winkel (+ PI winkel))      ;;Ziel unter Schildkröte
-			;;(SETQ winkel (- 0 (- PI winkel)))
-		)
-	)
 	
-	(SETQ winkel (- winkel (cdr (assoc 'theta pos))))
+		(SETQ winkel (- winkel (cdr (assoc 'theta pos))))
 
-    (send-turtle-velocity 0 winkel)
-	(sleep 1)
-	(send-turtle-velocity *speed* 0)
-)
-
-
-(defvar *speed* 0.2)
-
-(defun set-speed (number)
-	(SETF *speed* number)
+		(send-turtle-velocity 0 winkel)
+		(sleep 1)
+		(send-turtle-velocity *speed* 0)
+	) 
 )
 
 
@@ -130,22 +133,27 @@
 ;;returns T if so,
 ;;returns NIL if not so.
 (defun city-reached (city)
-	(SETQ limit 0.2)
-	(SETQ coords (read-coordinates city))
-	(SETQ turtle (get-turtle-pose))
-	
-	(if	(and
 		
-			(<= (cdr (assoc 'x turtle)) (+ (nth 0 coords) limit) )
-			(>= (cdr (assoc 'x turtle)) (- (nth 0 coords) limit) )
-		
-			(<= (cdr (assoc 'y turtle)) (+ (nth 1 coords) limit) )
-			(>= (cdr (assoc 'y turtle)) (- (nth 1 coords) limit) )
+	(let 
+		(	(limit 0.2)
+			(coords (read-coordinates city))
+			(turtle (get-turtle-pose))
 		)
-		;;THEN :: CITY REACHED => TRUE
-		T
-		;;ELSE :: CITY NOT REACHED => FALSE
-		NIL
+	
+		(if	(and
+		
+				(<= (cdr (assoc 'x turtle)) (+ (nth 0 coords) limit) )
+				(>= (cdr (assoc 'x turtle)) (- (nth 0 coords) limit) )
+		
+				(<= (cdr (assoc 'y turtle)) (+ (nth 1 coords) limit) )
+				(>= (cdr (assoc 'y turtle)) (- (nth 1 coords) limit) )
+			)
+			;;THEN :: CITY REACHED => TRUE
+			T
+			;;ELSE :: CITY NOT REACHED => FALSE
+			NIL
+		)
+		
 	)
 )
 
@@ -154,31 +162,34 @@
 ;;visit all cities.
 ;;
 ;;TODO change Background to random color, when reaching city.
-;;TODO go back to initial position, when reached all cities.
 ;;
 (defun visit-cities ()
-	(SETQ x (cdr (assoc 'x (get-turtle-pose))))
-	(SETQ y (cdr (assoc 'y (get-turtle-pose))))
-	
-	(SETQ start (list (cons 'name "Start")
-		(cons 'coordinates '(x y)))
-	)
-	
-	
-	(loop for x from 0 to (- (length *cities*) 1) do
-		(SETQ currentCity (nth x *cities*))
-			
-		(loop while (not (city-reached currentCity)) do
-			(go-turtle-go (read-coordinates currentCity))
-			(sleep 2)
+	(let* 
+		(	(x (cdr (assoc 'x (get-turtle-pose))))
+			(y (cdr (assoc 'y (get-turtle-pose))))
+			(currentCity NIL)
+			(start (list (cons 'name "Start")
+				(cons 'coordinates (list x y)))
+			)
 		)
-		(roslisp:ros-info (seminar high-level) "Reached city ~a" (read-name currentCity))
-    )
-    
-    ;;alle städte erreicht.
-    (loop while (not (city-reached start)) do
-		(go-turtle-go (read-coordinates start))
-		(sleep 2)
+	
+	
+		(loop for x from 0 to (- (length *cities*) 1) do
+			(SETQ currentCity (nth x *cities*))
+			
+			(loop while (not (city-reached currentCity)) do
+				(go-turtle-go (read-coordinates currentCity))
+				(sleep 0.5)
+			)
+			(roslisp:ros-info (seminar high-level) "Reached city ~a" (read-name currentCity))
+		)
+		
+		;;alle städte erreicht.
+		(loop while (not (city-reached start)) do
+			(go-turtle-go (read-coordinates start))
+			(sleep 1)
+		)
+		(roslisp:ros-info (seminar high-level) "Returned to the Startpoint.")
+		
 	)
-	(roslisp:ros-info (seminar high-level) "Returned to the Startpoint.")
 )
