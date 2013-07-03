@@ -69,7 +69,7 @@
 )
 
 
-(defun addCrossedWay ()
+(defun add-crossed-way ()
 	(SETF *cross-counter* (+ *cross-counter* 1))
 )
 
@@ -185,7 +185,7 @@
 	(let* 
 		(	(x (cdr (assoc 'x (get-turtle-pose))))
 			(y (cdr (assoc 'y (get-turtle-pose))))
-			(currentCity NIL)
+			(current-city NIL)
 			
 			;;new City. Used to return to Startpoint.
 			(start (list (cons 'name "Start")
@@ -195,15 +195,15 @@
 	
 	
 		(loop for x from 0 to (- (length *cities*) 1) do
-			(SETQ currentCity (nth x *cities*))
+			(SETQ current-city (nth x *cities*))
 			
-			(loop while (not (city-reached currentCity)) do
-				(go-turtle-go (read-coordinates currentCity))
+			(loop while (not (city-reached current-city)) do
+				(go-turtle-go (read-coordinates current-city))
 				(sleep 1)
-				(if (wayCrossed) (addCrossedWay))
+				(if (way-crossed) (add-crossed-way))
 			)
-			(changeBGColor)
-			(roslisp:ros-info (seminar high-level) "Reached city ~a" (read-name currentCity))
+			(change-bg-color)
+			(roslisp:ros-info (seminar high-level) "Reached city ~a" (read-name current-city))
 		)
 		
 		
@@ -211,7 +211,7 @@
 		(loop while (not (city-reached start)) do
 			(go-turtle-go (read-coordinates start))
 			(sleep 1)
-			(if (wayCrossed) (addCrossedWay))
+			(if (way-crossed) (add-crossed-way))
 		)
 		(roslisp:ros-info (seminar high-level) "Returned to the Startpoint. Mission Complete.")
 		
@@ -221,11 +221,13 @@
 
 
 ;;TODO wurde der eigene Weg gekreuzt?
-(defun wayCrossed ()
+(defun way-crossed ()
 	NIL
 )
 
-;;TODO hintergrundfarbe ändern
-(defun changeBGColor ()
+
+;;TODO so verschwindet auch der zurückgelegte weg!!
+
+(defun change-bg-color ()
 
 )
