@@ -186,6 +186,8 @@
 		(	(x (cdr (assoc 'x (get-turtle-pose))))
 			(y (cdr (assoc 'y (get-turtle-pose))))
 			(currentCity NIL)
+			
+			;;new City. Used to return to Startpoint.
 			(start (list (cons 'name "Start")
 				(cons 'coordinates (list x y)))
 			)
@@ -204,7 +206,8 @@
 			(roslisp:ros-info (seminar high-level) "Reached city ~a" (read-name currentCity))
 		)
 		
-		;;alle städte erreicht.
+		
+		;;all citis reached. Return to Start.
 		(loop while (not (city-reached start)) do
 			(go-turtle-go (read-coordinates start))
 			(sleep 1)
