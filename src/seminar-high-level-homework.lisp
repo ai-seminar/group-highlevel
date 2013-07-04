@@ -11,9 +11,13 @@
 
 (defvar *subscriber-started* nil)
 
+(defvar *color-subscriber-started* nil)
+
 (defvar *speed* 0.2)
 
-(defvar *cross-counter* 0)
+(defvar *cross-counter* NIL)
+
+(defvar *prev-color* NIL)
 
 
 ;; NOTE: The *cities* variable holds all cities that are
@@ -48,8 +52,8 @@
 	(unless *node-started*
 		(roslisp:start-ros-node "seminar_highlevel")
 		(setf *node-started* t)
+		(visit-cities)
 	)
-	(visit-cities)
 )
 
 
@@ -68,12 +72,6 @@
 (defun set-speed (number)
 	(SETF *speed* number)
 )
-
-
-(defun add-crossed-way ()
-	(SETF *cross-counter* (+ *cross-counter* 1))
-)
-
 
 
 
@@ -183,6 +181,9 @@
 
 ;;visit all cities.
 (defun visit-cities ()
+	
+	(SETF *cross-counter* 0)
+	
 	(let* 
 		(	(x (cdr (assoc 'x (get-turtle-pose))))
 			(y (cdr (assoc 'y (get-turtle-pose))))
@@ -202,7 +203,8 @@
 			(loop while (not (city-reached current-city)) do
 				(go-turtle-go (read-coordinates current-city))
 				(sleep 1)
-				(if (way-crossed) (add-crossed-way))
+				(print *cross-counter*)
+				(check-cross)
 			)
 			(roslisp:ros-info (seminar high-level) "Reached city ~a" (read-name current-city))
 		)
@@ -212,19 +214,46 @@
 		(loop while (not (city-reached start)) do
 			(go-turtle-go (read-coordinates start))
 			(sleep 1)
-			(if (way-crossed) (add-crossed-way))
+			(check-cross)
 		)
 		(roslisp:ros-info (seminar high-level) "Returned to the Startpoint. Mission Complete.")
 		
 		(change-bg-color)
 	)
+	
+	*cross-counter*
 )
 
 
 
 ;;TODO wurde der eigene Weg gekreuzt?
-(defun way-crossed ()
-	NIL
+(defun check-cross ()
+
+	(unless *color-subscriber-started*
+		(roslisp:subscribe "/turtle1/color_sensor"
+	                   "turtlesim/Color"
+	                   #'check-cross-cb)
+	(setf *color-subscriber-started* t))
+)
+
+
+
+(defun check-cross-cb (msg)
+	(with-fields (r g b) msg
+		
+		(if
+		
+			(and 
+				
+				(= r 179)
+				(= g 184)
+				(= b 255)
+			)
+			(SETF *cross-counter* (+ *cross-counter* 1))
+			()
+		)
+		(SETF *prev-color* (list r g b))
+	)
 )
 
 
