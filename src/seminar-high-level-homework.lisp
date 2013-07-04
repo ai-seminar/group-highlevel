@@ -194,6 +194,7 @@
 			)
 		)
 	
+		(change-bg-color)
 	
 		(loop for x from 0 to (- (length *cities*) 1) do
 			(SETQ current-city (nth x *cities*))
@@ -203,7 +204,6 @@
 				(sleep 1)
 				(if (way-crossed) (add-crossed-way))
 			)
-			(change-bg-color)
 			(roslisp:ros-info (seminar high-level) "Reached city ~a" (read-name current-city))
 		)
 		
@@ -216,6 +216,7 @@
 		)
 		(roslisp:ros-info (seminar high-level) "Returned to the Startpoint. Mission Complete.")
 		
+		(change-bg-color)
 	)
 )
 
@@ -225,7 +226,6 @@
 (defun way-crossed ()
 	NIL
 )
-
 
 
 (defun change-bg-color ()
