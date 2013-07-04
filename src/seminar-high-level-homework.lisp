@@ -49,6 +49,7 @@
 		(roslisp:start-ros-node "seminar_highlevel")
 		(setf *node-started* t)
 	)
+	(visit-cities)
 )
 
 

@@ -1,8 +1,11 @@
 <launch>
   
 	<!-- Roslisp-->
-	<node pkg="roslisp_repl" type="repl" name="repl"/>
-	
+	<!-- <node pkg="roslisp_repl" type="repl" name="repl"/> --> 
+
 	<!-- Turtlesim Node-->
 	<node pkg="turtlesim" type="turtlesim_node" name="my_turtle"/>
+
+	<!-- visit cities -->
+	<node pkg="group_highlevel" type="seminar-high-level-homework" name="goTurtle" />
 </launch>
