@@ -227,8 +227,12 @@
 )
 
 
-;;TODO so verschwindet auch der zurückgelegte weg!!
 
 (defun change-bg-color ()
-
+	
+	(roslisp:set-param "/background_b" (random 256))
+	(roslisp:set-param "/background_g" (random 256))
+	(roslisp:set-param "/background_r" (random 256))
+	
+	(roslisp:call-service "/clear" 'std_srvs-srv:empty)
 )
