@@ -1,5 +1,5 @@
 (defsystem seminar-high-level-homework
-  :author "Student names"
+  :author "Jannik Buckelo, Steffen Giese, Paul Meißner, Arne Stefes"
   :license "BSD"
   :description "A roslisp package called 'seminar-high-level-homework'"
 
