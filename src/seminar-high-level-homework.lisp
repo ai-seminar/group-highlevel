@@ -13,7 +13,7 @@
 
 (defvar *color-subscriber-started* nil)
 
-(defvar *speed* 0.2)
+(defvar *speed* 0.4)
 
 (defvar *cross-counter* NIL)
 
@@ -49,12 +49,12 @@
 
 
 (defun main ()
-	(unless *node-started*
-		(roslisp:start-ros-node "seminar_highlevel")
-		(setf *node-started* t)
-		(visit-cities)
-	)
-)
+  (unless *node-started*
+    (roslisp:start-ros-node "seminar_highlevel")
+    (setf *node-started* t)
+    )
+  (visit-cities)
+  )
 
 
 
@@ -62,16 +62,16 @@
 ;;Getter and Setter
 
 (defun read-name (city)
-	(cdr (assoc 'name city)))
+  (cdr (assoc 'name city)))
 
 
 (defun read-coordinates (city)
-	(cdr (assoc 'coordinates city)))
- 
-  
+  (cdr (assoc 'coordinates city)))
+
+
 (defun set-speed (number)
-	(SETF *speed* number)
-)
+  (SETF *speed* number)
+  )
 
 
 
@@ -105,7 +105,7 @@
                        #'turtle-pose-cb)
     (setf *subscriber-started* t))
   (loop when (not *last-turtle-pose*)
-          do (sleep 0.1)
+	do (sleep 0.1)
         while (not *last-turtle-pose*))
   *last-turtle-pose*)
 
@@ -118,34 +118,35 @@
 ;;calculates route for going to a given point
 ;;and moves there with a speed of *speed* units per second
 (defun go-turtle-go (point)
-	
-	(let*
-		(	(pos (get-turtle-pose))
+  
+  (let*
+      (	(pos (get-turtle-pose))
 			(xdiff (- (nth 0 point) (cdr (assoc 'x pos))))
 			(ydiff (- (nth 1 point) (cdr (assoc 'y pos))))
 			(winkel (atan (abs ydiff) (abs xdiff)))
-		)
-		
-		
-		(if (> xdiff 0)								;;Ziel rechts der Schildkröte
-			(if (> ydiff 0) 
-				(SETQ winkel winkel)             		;;Ziel über Schildkröte
-				(SETQ winkel (- (* 2 PI) winkel))       ;;Ziel unter Schildkröte
 			)
-													;;Ziel links der Schildkröte
-			(if (> ydiff 0) 
-				(SETQ winkel (- PI winkel))				;;Ziel über Schildkröte
-				(SETQ winkel (+ PI winkel))				;;Ziel unter Schildkröte
-			)
-		)
-	
-		(SETQ winkel (- winkel (cdr (assoc 'theta pos))))
-
-		(send-turtle-velocity 0 winkel)
-		(sleep 1)
-		(send-turtle-velocity *speed* 0)
-	) 
-)
+    
+    ;; the point is to the right of the turtle
+    (if (> xdiff 0)							
+	(if (> ydiff 0) 
+	    (SETQ winkel winkel)             	         	; the point is over the turtle
+	  (SETQ winkel (- (* 2 PI) winkel))                     ; the point is under the turtle
+	  )
+      ;; the point is to the left of the turtle
+      (if (> ydiff 0) 
+	  (SETQ winkel (- PI winkel))				; the point is over the turtle
+	(SETQ winkel (+ PI winkel))				; the point is under the turtle
+	)
+      )
+    
+    (SETQ winkel (- winkel (cdr (assoc 'theta pos))))
+    
+    ;(send-turtle-velocity 0 winkel)   
+    (loop while (= (send-turtle-velocity 0 winkel) 0) do (sleep 0.1))    ; turn the turtle
+    (sleep 1)
+    (loop while (= (send-turtle-velocity *speed* 0) 0) do (sleep 0.1))    ; move the turtle forward
+    ) 
+  )
 
 
 
@@ -153,115 +154,114 @@
 ;;returns T if so,
 ;;returns NIL if not so.
 (defun city-reached (city)
-		
-	(let 
-		(	(limit 0.1)
-			(coords (read-coordinates city))
-			(turtle (get-turtle-pose))
-		)
-	
-		(if	(and
-		
-				(<= (cdr (assoc 'x turtle)) (+ (nth 0 coords) limit) )
-				(>= (cdr (assoc 'x turtle)) (- (nth 0 coords) limit) )
-		
-				(<= (cdr (assoc 'y turtle)) (+ (nth 1 coords) limit) )
-				(>= (cdr (assoc 'y turtle)) (- (nth 1 coords) limit) )
-			)
-			;;THEN :: CITY REACHED => TRUE
-			T
-			;;ELSE :: CITY NOT REACHED => FALSE
-			NIL
-		)
-		
+  
+  (let 
+      (	(limit 0.2)
+	(coords (read-coordinates city))
+	(turtle (get-turtle-pose))
 	)
-)
+    
+    (if	(and
+	 
+	 (<= (cdr (assoc 'x turtle)) (+ (nth 0 coords) limit) )
+	 (>= (cdr (assoc 'x turtle)) (- (nth 0 coords) limit) )
+	 
+	 (<= (cdr (assoc 'y turtle)) (+ (nth 1 coords) limit) )
+	 (>= (cdr (assoc 'y turtle)) (- (nth 1 coords) limit) )
+	 )
+	;;THEN :: CITY REACHED => TRUE
+	T
+      ;;ELSE :: CITY NOT REACHED => FALSE
+			NIL
+			)
+    
+    )
+  )
 
 
 
 ;;visit all cities.
 (defun visit-cities ()
-	
-	(SETF *cross-counter* 0)
-	
-	(let* 
-		(	(x (cdr (assoc 'x (get-turtle-pose))))
-			(y (cdr (assoc 'y (get-turtle-pose))))
+  
+  (SETF *cross-counter* -1)              ; -1 because otherwise it would count 1 line cross at the start
+  
+  (let* 
+      (	(x (cdr (assoc 'x (get-turtle-pose))))
+	(y (cdr (assoc 'y (get-turtle-pose))))
 			(current-city NIL)
 			
 			;;new City. Used to return to Startpoint.
 			(start (list (cons 'name "Start")
-				(cons 'coordinates (list x y)))
+				     (cons 'coordinates (list x y)))
+			       )
 			)
+    
+    (change-bg-color)                   ; change the background color at the start
+
+    (check-cross)                       ; check if the turtle crosses its line
+
+    ;; processes all cities and let the turtle visit them
+    (loop for x from 0 to (- (length *cities*) 1) do
+	  (SETQ current-city (nth x *cities*))
+	  
+	  (loop while (not (city-reached current-city)) do
+		(go-turtle-go (read-coordinates current-city))
+		(sleep 1)
 		)
-	
-		(change-bg-color)
-	
-		(loop for x from 0 to (- (length *cities*) 1) do
-			(SETQ current-city (nth x *cities*))
-			
-			(loop while (not (city-reached current-city)) do
-				(go-turtle-go (read-coordinates current-city))
-				(sleep 1)
-				(print *cross-counter*)
-				(check-cross)
-			)
-			(roslisp:ros-info (seminar high-level) "Reached city ~a" (read-name current-city))
-		)
-		
-		
-		;;all citis reached. Return to Start.
-		(loop while (not (city-reached start)) do
-			(go-turtle-go (read-coordinates start))
-			(sleep 1)
-			(check-cross)
-		)
-		(roslisp:ros-info (seminar high-level) "Returned to the Startpoint. Mission Complete.")
-		
-		(change-bg-color)
-	)
-	
-	*cross-counter*
-)
+	  (roslisp:ros-info (seminar high-level) "Reached city ~a" (read-name current-city))
+	  (roslisp:ros-info (seminar high-level) "Lines crossed  ~a" *cross-counter*)
+	  )
+    
+    
+    ;;all citis reached. Return to Start.
+    (loop while (not (city-reached start)) do
+	  (go-turtle-go (read-coordinates start))
+	  (sleep 1)
+	  )
+    (roslisp:ros-info (seminar high-level) "Returned to the Startpoint. Mission Complete.")
+    
+    (change-bg-color)
+    )
+  
+  *cross-counter*
+  )
 
 
 
-;;TODO wurde der eigene Weg gekreuzt?
+;; checks if the turtle crossed its line
 (defun check-cross ()
+  
+  (unless *color-subscriber-started*
+    (roslisp:subscribe "/turtle1/color_sensor"
+		       "turtlesim/Color"
+		       #'check-cross-cb)
+    (setf *color-subscriber-started* t))
+  )
 
-	(unless *color-subscriber-started*
-		(roslisp:subscribe "/turtle1/color_sensor"
-	                   "turtlesim/Color"
-	                   #'check-cross-cb)
-	(setf *color-subscriber-started* t))
-)
 
-
-
+;; checks the msg if the line got crossed 
 (defun check-cross-cb (msg)
-	(with-fields (r g b) msg
-		
-		(if
-		
-			(and 
-				
-				(= r 179)
-				(= g 184)
-				(= b 255)
-			)
-			(SETF *cross-counter* (+ *cross-counter* 1))
-			()
+  (with-fields (r g b) msg
+	       (if		   
+		   (and 		    
+		    (= r 179)
+		    (= g 184)
+		    (= b 255)
+		    (not (equal (list r g b) *prev-color*))
+		    )
+		   (SETF *cross-counter* (+ *cross-counter* 1))
+		 ()
+		 )
+	       (SETF *prev-color* (list r g b))
 		)
-		(SETF *prev-color* (list r g b))
-	)
-)
+  )
 
-
+;; changes the background color of the turtlesi to a random color
 (defun change-bg-color ()
+  
+  (roslisp:set-param "/background_b" (random 256))
+  (roslisp:set-param "/background_g" (random 256))
+  (roslisp:set-param "/background_r" (random 256))
 	
-	(roslisp:set-param "/background_b" (random 256))
-	(roslisp:set-param "/background_g" (random 256))
-	(roslisp:set-param "/background_r" (random 256))
-	
-	(roslisp:call-service "/clear" 'std_srvs-srv:empty)
-)
+  (roslisp:call-service "/clear" 'std_srvs-srv:empty)
+  )
