@@ -1,11 +1,8 @@
 <launch>
 
-    <group ns="turtles">
-        <node pkg="turtlesim" name="my_turtle" type="turtlesim_node"/>
-    </group>
+	<!-- Turtlesim Node-->
+	<node pkg="turtlesim" type="turtlesim_node" name="my_turtle"/>
 
-    <group ns="seminar-high-level">
-        <node pkg="group_highlevel" name="test123" type="seminar-high-level-homework"/>
-    </group>
-
+	<!-- visit cities -->
+	<node pkg="group_highlevel" type="seminar-high-level-homework" name="goTurtle" />
 </launch>
